@@ -83,7 +83,12 @@ class AttachableBehavior extends ModelBehavior {
                 if( !empty( $result[$alias]['id'] ) ) {
                     $url_info   = pathinfo( $attachment['url'] );
                     $path_info  = pathinfo( $attachment['path'] );
-                    $thumbnails = $model->$alias->AttachmentThumbnail->find( 'all', array( 'conditions' => array( 'AttachmentThumbnail.polyclip_attachment_id' => $result[$alias]['id'] ) ) );
+                    $thumbnails = $model->$alias->AttachmentThumbnail->find( 
+                            'all', 
+                            array( 'conditions' => array( 
+                                    'AttachmentThumbnail.polyclip_attachment_id' => $result[$alias]['id'] 
+                                    ))
+                            );
 
                     if( !empty( $thumbnails ) ) {
                         if( !isset( $results[$i]['Thumbnail'] ) ) {
@@ -241,4 +246,6 @@ class AttachableBehavior extends ModelBehavior {
             }
         }
     }
-}
+
+}// end class
+

@@ -27,11 +27,13 @@ class AttachmentController extends AppController {
             }
         }
 
+        $extension = strtolower( pathinfo( $file, PATHINFO_EXTENSION ));
+        if( empty( $extension )) { $extension = 'bin' ; }
         $params = array(
                 'id'       => basename( $file ),
                 'extension'=> strtolower( pathinfo( $file, PATHINFO_EXTENSION )),
                 'name'     => basename( $file, '.'.pathinfo( $file, PATHINFO_EXTENSION )),
-                'mimeType' => $mimeType,
+                'mimeType' => array( $extension => $mimeType ),
                 'path'     => APP.dirname( $file ).DS,
                 'download' => !empty( $this->params['named']['download'] ) ? true : false,
                 'cache'    => !empty( $this->params['named']['cache'] ) ? true : false,

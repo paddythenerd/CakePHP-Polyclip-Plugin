@@ -149,24 +149,30 @@ class Attachment extends AppModel {
      */
     private function write( $attachment ) {
         $base_path = Configure::read( 'Polyclip.base_path' );
-        if( empty( $base_path )) { 
-            $base_path = APP.'plugins/polyclip/webroot'; 
-        } else {
-            $base_path = APP.$base_path;
-        }
+        if( empty( $base_path )) { $base_path = APP.'plugins/polyclip/webroot'; } 
+        else { $base_path = APP.$base_path; }
 
         $base_url = Configure::read( 'Polyclip.base_url' );
-        if( empty( $base_path )) { 
-            $base_url  = '/polyclip';
-        }
+        if( empty( $base_path )) { $base_url  = '/polyclip'; }
+
+        $asset_base_path = Configure::read( 'Polyclip.asset_base_path' );
+        $asset_path_depth = Configure::read( 'Polyclip.asset_path_depth' );
 
         /**
          * Determine where the file should be saved
          */
-        $save_as = $base_path . $this->asset_path() . '/' . $attachment['name'];
-        while( file_exists( $save_as ) ) {
-            $save_as = $base_path . $this->asset_path() . '/' . $attachment['name'];
+        $i = 0;
+        $save_as =  $base_path . 
+                    $this->asset_path($asset_base_path, $asset_path_depth ) . 
+                    '/' . $this->normalize( $attachment['name'] );
+        while( file_exists( $save_as ) && $i < 10000 ) {
+            $i++;
+            $save_as = $base_path . 
+                    $this->asset_path($asset_base_path, $asset_path_depth) . 
+                    '/' . $this->normalize( $attachment['name'] );
         }
+
+        if( $i >= 10000 ) { throw new Exception( 'Unable to save file' ); } // (' . $save_as . ')' ); }
 
         try {
             // Attempt to create the directory if it doesn't exist
@@ -205,7 +211,7 @@ class Attachment extends AppModel {
                 }
 
                 try {
-                    $this->mode( $save_as );
+                    $this->setMode( $save_as );
                 }
                 catch( Exception $e ) {
                     /**
@@ -270,7 +276,7 @@ class Attachment extends AppModel {
      * @param    $file        The absolute file path.
      * @return    void
      */
-    private function mode( $file, $octal = 0644 ) {
+    private function setMode( $file, $octal = 0644 ) {
         try {
             chmod( $file, $octal );
         }
@@ -303,7 +309,15 @@ class Attachment extends AppModel {
                 return 'File upload stopped by extension'; 
             default: 
                 return 'Unknown upload error'; 
-        } 
+        }
     }
-}
+
+    private function normalize( $fileName ) {
+        $fileInfo = pathinfo( $fileName );
+        $normalized = Inflector::slug( $fileInfo['filename'] );
+        if( !empty( $fileInfo['extension'] )) { $normalized .= '.'.$fileInfo['extension'] ; }
+        return $normalized ;
+    }
+
+}// end class
 

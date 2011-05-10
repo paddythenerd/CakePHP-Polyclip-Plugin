@@ -48,8 +48,13 @@ class AttachmentThumbnail extends AppModel {
     public function generate( $method, $attachment, $thumb_alias, $max_w, $max_h, $quality = 75 ) {
         if( Configure::read( 'debug' ) > 0 ) $this->log( '{AttachmentThumbnail::generate} Creating a ' . $thumb_alias . ' thumbnail not to exceed ' . $max_w . 'x' . $max_h . ' for ' . json_encode( $attachment ), LOG_DEBUG );
 
-        $base_path = APP . 'webroot/polyclip';
-        $base_url  = '/polyclip';
+        $base_path = Configure::read( 'Polyclip.base_path' );
+        if( empty( $base_path )) { $base_path = APP.'plugins/polyclip/webroot'; } 
+        else { $base_path = APP.$base_path; }
+
+        $base_url = Configure::read( 'Polyclip.base_url' );
+        if( empty( $base_path )) { $base_url  = '/polyclip'; }
+
         $method    = strtolower( $method ) == 'resize_to_fill' ? 'resize_to_fill' : 'resize_to_fit';    // TODO: support other methods?
         $source    = $base_path . str_replace( $base_url, '', $attachment['url'] );
 

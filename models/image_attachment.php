@@ -9,3 +9,4 @@ class ImageAttachment extends AppModel {
     'AttachmentThumbnail' => array( 'className' => 'Polyclip.AttachmentThumbnail', 'foreignKey' => 'entity_id', 'dependent' => true )
 	);
 }
+
