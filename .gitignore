@@ -2,3 +2,6 @@ assets/
 install.sql
 install.*.sql
 !install.sample.sql
+config/local.php
+*.swp
+*.vim

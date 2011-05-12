@@ -155,8 +155,11 @@ class Attachment extends AppModel {
         $base_url = Configure::read( 'Polyclip.base_url' );
         if( empty( $base_path )) { $base_url  = '/polyclip'; }
 
-        $asset_base_path = Configure::read( 'Polyclip.asset_base_path' );
         $asset_path_depth = Configure::read( 'Polyclip.asset_path_depth' );
+        $asset_base_path  = Configure::read( 'Polyclip.asset_base_path' );
+        if( Configure::read( 'Polyclip.use_model_based_paths' )) {
+            $asset_base_path .= '/' . strtolower( $attachment['model'] );
+        }
 
         /**
          * Determine where the file should be saved
@@ -165,6 +168,7 @@ class Attachment extends AppModel {
         $save_as =  $base_path . 
                     $this->asset_path($asset_base_path, $asset_path_depth ) . 
                     '/' . $this->normalize( $attachment['name'] );
+
         while( file_exists( $save_as ) && $i < 10000 ) {
             $i++;
             $save_as = $base_path . 
@@ -184,7 +188,6 @@ class Attachment extends AppModel {
                 $attachment['mimetype'] = $attachment['type'];
                 $attachment['path']     = str_replace( APP, '/', $save_as );
                 $attachment['url']      = str_replace( $base_path, $base_url, $save_as );
-
                 $data[$attachment['alias']] = $attachment;
 
                 if( preg_match( '/^image\//', $data[$attachment['alias']]['mimetype'] ) ) {
@@ -253,7 +256,7 @@ class Attachment extends AppModel {
      * @return      The bin directory hash in the form "bin/[a-z]/[a-z]".  Leading
      *              and trailing slashes are removed for readability when concatenating.
      */
-    private function asset_path( $root = '/assets', $depth = 2 ) {
+    private function asset_path( $root='/assets', $depth=2 ) {
         $path = array( $root );
         for( $i = 0; $i < $depth; $i++ ) {
             array_push( $path, $this->random_char() );
